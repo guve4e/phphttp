@@ -1,10 +1,9 @@
 <?php
-require_once (CLASS_PATH . '/WebApiResponse.php');
-require_once (CLASS_PATH . '/Logger.php');
-require_once (CLASS_PATH . '/RestResponse.php');
+require_once ("RestResposne.php");
 /**
  * RestCall class
- * Makes a Call to the Web API
+ * Wrapper to libcurl
+ * @see <http://php.net/manual/en/book.curl.php>
  * @version     1.0.0
  * @category    class
  * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
@@ -12,371 +11,207 @@ require_once (CLASS_PATH . '/RestResponse.php');
 class RestCall
 {
     /**
-     * @var bool
+     * @var
      */
-    public $toDebug = false;
+    private $method;
 
     /**
      * @var
      */
-    private $apiHeaders;
+    private $content_type;
 
     /**
      * @var
      */
-    private $url_params;
+    private $headers = array();
 
     /**
-     * @var string
+     * @var
      */
-    private $user_token = "";
+    private $url;
 
     /**
-     * @var string
+     * @var
      */
-    private $api_token = "Kjbd43n#1hvsoyjYHUIerJdS073%df3TS";
+    private $json_data;
 
     /**
-     * Mutator that sets the user_token variable
-     * @param string
+     * @var
      */
-    public function setUser($user) {
-        if (!$user){
-            $this->user_token = "";
-        }
-        else
-        {
-            $this->user_token = "";
-        }
-
-    }
-
+    private $data_send;
 
     /**
-     * Checks For Success
-     * If Success error is null
-     * If Not data is null
-     * @param $response
-     * @param $res
-     * @return mixed
+     * @var
      */
-    private function checkResponse($response, $res)
+    private $debug = true;
+
+    /**
+     * RestCall constructor.
+     */
+    function __construct() {
+
+    }// end constructor
+
+    /**
+     * Static constructor / factory
+     */
+    public static function create() {
+
+        $instance = new self();
+        return $instance;
+    }// end
+
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method)
     {
-        if ($response->getSuccess()) {
-            $res->setData($response->getData());
-        } else {
-            $res->setError($response->getError());
-        }
-        return $res;
-    }
+        $this->method = $method;
+        if ($method == "GET") $this->data_send = false;
+        else $this->data_send = true;
+    }// end
 
     /**
-     * Add parameters
-     * @param $key
-     * @param $value
+     * @param mixed $content_type
      */
-    public function addParameter($key, $value)
+    public function setContentType($content_type)
     {
-        $this->url_params[$key] = $value;
-    }
+        $this->content_type = $content_type;
+        $this->headers [] = 'Content-Type: ' . $content_type;
+
+    }// end
 
     /**
-     * Add headers
-     * @param $key
-     * @param $value
+     * @param mixed $headers
      */
-    public function addHeader($key, $value)
+    public function setHeaders($headers)
     {
-        $this->apiHeaders[$key] = $value;
-    }
+        $this->make_headers($headers);
+    }// end
 
     /**
-     * Get URL
-     * @param $url
-     * @return RestCall
+     * @param mixed $url
      */
-    public function get_url($url): WebApiResponse
+    public function setUrl($url)
     {
-        $res = new WebApiResponse();
-        $response = $this->http_send("GET", "application/x-www-form-urlencoded", $url, "");
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
+        $this->url = $url;
+    }// end
 
     /**
-     * Get JSON
-     * Makes GET Request
-     * @param $url
-     * @return WebApiResponse
+     * @param mixed $json_data
      */
-    public function get_json($url): WebApiResponse
+    public function setJsonData($json_data)
     {
-        $res = new WebApiResponse();
-        $response = $this->http_send("GET", "application/json", $url, "");
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
-
+        $this->json_data = $json_data;
+    }// end
 
     /**
-     * Get JSON
-     * Makes Post Request
-     * @param $url
-     * @param $mime
-     * @param $data
-     * @return RestCall
-     */
-    public function post_raw( $url, $mime, $data): WebApiResponse
-    {
-        $res = new WebApiResponse();
-        $response = $this->http_send("POST", $mime, $url, $data);
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
-
-    /**
-     * Get JSON
-     * Makes Post Request
-     * @param $url
-     * @param $data
-     * @return RestCall
-     */
-    public function post_url( $url, $data): WebApiResponse
-    {
-        $res = new WebApiResponse();
-        $data_string = http_build_query($data);
-        $response = $this->http_send("POST", "application/x-www-form-urlencoded", $url, $data_string);
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
-
-    /**
-     * @param $url
-     * @param $data
-     * @return RestCall
-     */
-    public function post_json( $url, $data): WebApiResponse
-    {
-        global $config;
-        $res = new WebApiResponse();
-        $data_string = json_encode($data);
-        $response = $this->http_send("POST", "application/json", $url, $data_string);
-
-        $a = print_r($response,true);
-        Logger::logVarDump("RESPONSE->" . $a);
-
-        if ($config['debug']) // Log it
-        {
-            Logger::saveLogFile('post-'. date('Y-m-d-H-i-s') . ".json", json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        }
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
-
-    /**
-     * Get JSON
-     * Makes PUT Request
-     * @param $url
-     * @param $data
-     * @return WebApiResponse
-     */
-    public function put_json( $url, $data): WebApiResponse
-    {
-        $res = new WebApiResponse();
-        $data_string = json_encode($data);
-        $response = $this->http_send("PUT", "application/json", $url, $data_string);
-        // check response and return
-        return $this->checkResponse($response,$res);
-    }
-
-    /**
-     * Error Response
-     * @param $result
-     * @param $code
-     * @param $msg
-     * @return RestResponse
-     */
-    private function errorResponse( $result, $code, $msg): RestResponse {
-        if (!isset($result)) {
-            $result = new RestResponse();
-        }
-        $result->setSuccess(false);
-        $result->setHttpCode($code);
-        $result->setError($msg);
-        return $result;
-    }
-
-    /**
-     * Get Parameters String
-     * @param string $prefix
-     * @return string
-     */
-    private function getParamString( $prefix = "") {
-        $result = "";
-        foreach ($this->url_params as $key => $value) {
-            if (!empty($result)) {
-                $result .= "&";
-            }
-            $result .= $key . "=" . $value;
-        }
-
-        if (empty($result)) {
-            return "";
-        }
-        return $prefix . $result;
-    }
-
-    /**
-     * Displays an Error Page
-     * @param $item
-     * @param $reason
-     * @param bool $toredirect
-     */
-    function error_page($item, $reason, $toredirect = false) {
-        global $user;
-        global $page_id;
-        $dump = $reason . "\n";
-        $dump .= "page_id: " . var_export($page_id, true). "\n";
-        $dump .= "user: ". var_export($user, true). "\n";
-        $dump .= "data: ". var_export($item, true). "\n";
-        Logger::saveDumpFile("error500.json", $dump). "\n";
-        if ($toredirect) {
-            ob_end_clean();
-            header("Location: error_500.php");
-        } else {
-            echo '<div id="page_content"><div id="page_content_inner">';
-            print "<div class='uk-alert uk-alert-danger'>Error displaying this page: {$reason}</div>";
-            print "<pre>\n";
-            echo Logger::loadDumpFile("error500.json");
-            print "</pre>\n";
-            echo '</div></div>';
-            //exit();
-        }
-    }
-
-    /**
-     * Create Response
-     * Called From http_send()
-     * @see http_send()
-     * @param $method
-     * @param $curl
-     * @param $curl_response
-     * @param $info
-     * @return RestResponse
-     */
-    private function createResponse( $method, $curl, $curl_response, $info): RestResponse {
-        $res = new RestResponse();
-        $res->setHttpCode($info['http_code']);    // curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $res->setContentType($info['content_type']); // curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        $res->setTotalTime($info['total_time']);
-        $res->setBody($curl_response);
-
-        if ($curl_response === false) {
-            $res->setSuccess(false);
-            $res->setTrace($method . " FAILED: " . var_export($info));
-        }
-        if (curl_errno($curl)) {
-            $res->setSuccess(false);
-            $res->setTrace($method. " ERROR: " . var_export($info));
-        }
-        // check success
-        $success = $res->getSuccess();
-        if ($success) {
-            $code = $res->getHttpCode();
-            if ($code < 300) {
-                $pos = strpos($res->getContentType(), "json");
-
-                if ($pos === false) {
-                    $pos = strpos($res->getContentType(), "javascript");
-                }
-                if ($pos === false) {
-                    return $res;
-                } // not JSON output
-
-                $res->setData(json_decode($res->getBody()));
-                // get data
-                $d = $res->getData();
-                if (isset($d)){
-                    return $res;
-                }
-                if ($this->toDebug) {
-                    logDebug("Invalid JSON: " .$res->getBody());
-                }
-                return $this->errorResponse(null, 900, "Cannot parse JSON response");
-            }
-            // Process HTTP error
-            Logger::logError("Invalid REST response: " . $res->getHttpCode());
-            Logger::logDebug("Invalid REST response: " . $res->getHttpCode() . "\n" . $res->getBody());
-            return $this->errorResponse($res, $res->getHttpCode(), $res->getBody());
-        }
-
-        return $res;
-    }
-
-
-    /**
-     * HTTP_SEND
-     * Uses Client URL Library libcurl
      *
-     * @param string $method
-     * @param $ctype
-     * @param string $url
-     * @param string $data_string
-     * @return RestResponse
+     * @param $debug
+     * @throws Exception
      */
-    private function http_send(string $method, $ctype, string $url, string $data_string) {
+    public function setDebug($debug)
+    {
+        if ($debug == true) $this->debug = $debug;
+        else if ($debug == false) $this->debug = $debug;
+        else throw new Exception("Debug Value must be boolean!");
+    }
 
-        if ($this->toDebug) {
-            $dpost = new \StdClass();
-            $dpost->time = date("Y-m-d h:i:sa");
-            $dpost->method = $method;
-            $dpost->url = $url;
-            if (!empty($data_string)) $dpost->data = $data_string;
+    /**
+     * Send Request
+     */
+    public function sendRequest() {
+        return $this->http_send();
+    }
+
+    /**
+     * Sets the Headers
+     */
+    private function make_headers($headers) {
+
+        foreach ($headers as $key => $value) {
+            $this->headers[] = $key . ': ' . $value;
         }
+    }// end
 
-        $curl = curl_init($url);
+    /**
+     *
+     * @return null
+     * @throws Exception
+     */
+    private function http_send() {
+
+        if ($this->method == null) throw new Exception("Null Method");
+        if ($this->content_type == null) throw new Exception("Null Content Type");
+
+        // initialize
+        $curl = curl_init($this->url);
+
+        // TRUE to return the transfer as a string
+        // of the return value of curl_exec()
+        // instead of outputting it out directly.
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        if (!empty($method)){
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-        } 
-        $headers = array();
-        $headers[] = 'Content-Type: ' . $ctype;
-        if (!empty($data_string)) {
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-            $headers[] = 'Content-Length: ' . strlen($data_string);
-        }
-        foreach ($this->apiHeaders as $key => $value) {
-            $headers[] = $key . ': ' . $value;
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
+        // A custom request method to use instead of "GET" or
+        // "HEAD" when doing a HTTP request. This is useful
+        // for doing "DELETE" or other, more obscure HTTP requests.
+        // Valid values are things like "GET", "POST", "CONNECT" and so on;
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->method);
+
+        // set headers
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $this->headers);
+
+        // The full data to post in a HTTP "POST" operation. To post a file,
+        // prepend a filename with @ and use the full path. The filetype can be
+        // explicitly specified by following the filename with the type in the
+        // format ';type=mimetype'. This parameter can either be passed as a
+        // urlencoded string like 'para1=val1&para2=val2&...' or as an array with
+        // the field name as key and field data as value. If value is an array, the
+        // Content-Type header will be set to multipart/form-data. As of PHP 5.2.0,
+        // value must be an array if files are passed to this option with the @ prefix.
+        // As of PHP 5.5.0, the @ prefix is deprecated and files can be sent using CURLFile.
+        // The @ prefix can be disabled for safe passing of values beginning with @ by
+        // setting the CURLOPT_SAFE_UPLOAD option to TRUE.
+        if ($this->data_send) curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data_string);
+
+
+        $res = null;
         try {
-
-            $curl_response = curl_exec($curl);
+            $res = curl_exec($curl);
             $info = curl_getinfo($curl);
-            $res = $this->createResponse($method, $curl, $curl_response, $info);
 
-            if ($this->toDebug) {
-                Logger::logDebug($method . " " . $url);
-                Logger::logDebug("  code: ". $res->getHttpCode());
-                Logger::logDebug("  type: ". $res->getContentType());
-                Logger::logDebug("  time: ". $res->getTotalTime());
-                $dpost->response = $res;
-            }
+            $log = new RestResponse($info,$this->method, $curl, $res);
+            if ($this->debug) $log->printInfo();
 
         } catch (Exception $e) {
-            $res->setSuccess(false);
-            $res->setTrace( $method . " EXCEPTION: " . var_export($e->getMessage()));
-            if ($this->toDebug) {
-                $dpost->error = " EXCEPTION: " . var_export($e->getMessage());
-            }
-        }
-        curl_close($curl);
-        if ($this->toDebug)  {
-            Logger::logDebug($method . '-'. date('Y-m-d-H-i-s'));
-            Logger::logDebug(json_encode($dpost, JSON_PRETTY_PRINT));
-        }
 
-        return $res;
-    }
+        } finally {
+            curl_close($curl);
+            return json_decode($res);
+        }
+    }// end
+}// end class
+
+
+try {
+
+    $r = RestCall::create();
+    $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
+    $r->setContentType("application/json");
+    $r->setMethod("GET");
+
+    $headers = [
+        "a" => "b",
+        "c" => "d"
+    ];
+
+    $r->setHeaders($headers);
+
+    $s = $r->sendRequest();
+    print_r($s);
+} catch (Exception $e) {
+    echo $e->getMessage();
 }
+
+
+
