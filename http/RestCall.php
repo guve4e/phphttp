@@ -102,7 +102,7 @@ class RestCall
      */
     public function setJsonData($json_data)
     {
-        $this->json_data = $json_data;
+        $this->json_data = json_encode($json_data);
     }// end
 
     /**
@@ -201,12 +201,14 @@ try {
     $r = RestCall::create();
     $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
     $r->setContentType("application/json");
-    $r->setMethod("POST");
+    $r->setMethod("POST ");
+
     $json_data = [
         "name" => "John",
         "occupation" => "Programmer"
     ];
 
+    
     $r->setJsonData($json_data);
 
     $headers = [
