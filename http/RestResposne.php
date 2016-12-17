@@ -74,6 +74,13 @@ class RestResponse
      */
     private $primary_port;
 
+     /**
+     * Properties of class
+     *
+     * @var mixed
+     */
+    private $prop = array();
+
     /**
      * RestResponse constructor
      */
@@ -91,6 +98,17 @@ class RestResponse
         $this->primary_port = $info['primary_port'];
         $this->method = $method;
         $this->body = $res;
+
+         // set properties in array
+        $this->prop['url'] = $this->url;
+        $this->prop['content_type'] = $this->content_type;
+        $this->prop['http_code'] = $this->http_code;
+        $this->prop['success'] = $this->success;
+        $this->prop['local_ip'] = $this->local_ip;
+        $this->prop['local_port'] = $this->local_port;
+        $this->prop['primary_ip'] = $this->primary_ip;
+        $this->prop['method'] = $this->method;
+        $this->prop['body'] = $res;
     }
 
     /**

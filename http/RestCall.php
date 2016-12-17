@@ -39,12 +39,12 @@ class RestCall
      * @var
      */
     private $data_send;
-
+    
     /**
      * @var
      */
     private $debug = true;
-
+    
     /**
      * RestCall constructor.
      */
@@ -172,7 +172,10 @@ class RestCall
         // As of PHP 5.5.0, the @ prefix is deprecated and files can be sent using CURLFile.
         // The @ prefix can be disabled for safe passing of values beginning with @ by
         // setting the CURLOPT_SAFE_UPLOAD option to TRUE.
-        if ($this->data_send) curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data_string);
+        if ($this->data_send) {
+            if ($this->json_data == null) throw new Exception("Specify Data to Send");
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->json_data);
+        }
 
 
         $res = null;
@@ -198,7 +201,13 @@ try {
     $r = RestCall::create();
     $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
     $r->setContentType("application/json");
-    $r->setMethod("GET");
+    $r->setMethod("POST");
+    $json_data = [
+        "name" => "John",
+        "occupation" => "Programmer"
+    ];
+
+    $r->setJsonData($json_data);
 
     $headers = [
         "a" => "b",
