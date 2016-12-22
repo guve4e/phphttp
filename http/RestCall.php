@@ -1,5 +1,5 @@
 <?php
-require_once ("RestResposne.php");
+require_once("RestResponse.php");
 /**
  * RestCall class
  * Wrapper to libcurl
@@ -39,12 +39,7 @@ class RestCall
      * @var
      */
     private $data_send;
-    
-    /**
-     * @var
-     */
-    private $debug = true;
-    
+
     /**
      * RestCall constructor.
      */
@@ -62,20 +57,30 @@ class RestCall
     }// end
 
     /**
+     * @precondition Valid Method Name
      * @param mixed $method
+     * @throws Exception
      */
     public function setMethod($method)
     {
+        // preconditions
+        if ($method == null) throw new Exception("Null Method");
+
         $this->method = $method;
         if ($method == "GET") $this->data_send = false;
         else $this->data_send = true;
     }// end
 
     /**
+     * @precondition Valid Content Type
      * @param mixed $content_type
+     * @throws Exception
      */
     public function setContentType($content_type)
     {
+        // preconditions
+        if ($content_type == null) throw new Exception("Null ContentType");
+
         $this->content_type = $content_type;
         $this->headers [] = 'Content-Type: ' . $content_type;
 
@@ -99,23 +104,16 @@ class RestCall
 
     /**
      * @param mixed $json_data
+     * @throws Exception
      */
     public function setJsonData($json_data)
     {
+        // preconditions
+        if ($json_data == null) throw new Exception("Null Json Data");
+
         $this->json_data = json_encode($json_data);
     }// end
 
-    /**
-     *
-     * @param $debug
-     * @throws Exception
-     */
-    public function setDebug($debug)
-    {
-        if ($debug == true) $this->debug = $debug;
-        else if ($debug == false) $this->debug = $debug;
-        else throw new Exception("Debug Value must be boolean!");
-    }
 
     /**
      * Send Request
@@ -135,14 +133,17 @@ class RestCall
     }// end
 
     /**
+     * Makes HTTP Call to specified URL
      *
-     * @return null
+     * @return string json string / Curl Response
      * @throws Exception
      */
     private function http_send() {
 
+        // preconditions
         if ($this->method == null) throw new Exception("Null Method");
         if ($this->content_type == null) throw new Exception("Null Content Type");
+        if ($this->url == null) throw new Exception("Null Url");
 
         // initialize
         $curl = curl_init($this->url);
@@ -184,7 +185,7 @@ class RestCall
             $info = curl_getinfo($curl);
 
             $log = new RestResponse($info,$this->method, $curl, $res);
-            if ($this->debug) $log->printInfo();
+            $log->printInfo();
 
         } catch (Exception $e) {
 
@@ -201,7 +202,7 @@ try {
     $r = RestCall::create();
     $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
     $r->setContentType("application/json");
-    $r->setMethod("POST ");
+    $r->setMethod("PUT ");
 
     $json_data = [
         "name" => "John",

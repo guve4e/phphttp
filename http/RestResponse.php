@@ -74,7 +74,7 @@ class RestResponse
      */
     private $primary_port;
 
-     /**
+    /**
      * Properties of class
      *
      * @var mixed
@@ -83,10 +83,13 @@ class RestResponse
 
     /**
      * RestResponse constructor
+     * @throws Exception
      */
-    public function __construct($info, $method, $curl, $res) {
-        if ($info == null) throw new Exception("Null Info");
+    public function __construct( $info, $method, $curl, $res ) {
+        if ($info == null || $method == null || $curl == null || $res == null)
+            throw new Exception("Null Info, can not construct RestResponse Object");
 
+        //
         $this->url = $info['url'];
         $this->content_type = $info['content_type'];
         $this->http_code = $info['http_code'];
