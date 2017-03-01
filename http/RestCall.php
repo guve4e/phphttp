@@ -197,33 +197,5 @@ class RestCall
 }// end class
 
 
-try {
-
-    $r = RestCall::create();
-    $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
-    $r->setContentType("application/json");
-    $r->setMethod("PUT ");
-
-    $json_data = [
-        "name" => "John",
-        "occupation" => "Programmer"
-    ];
-
-    
-    $r->setJsonData($json_data);
-
-    $headers = [
-        "a" => "b",
-        "c" => "d"
-    ];
-
-    $r->setHeaders($headers);
-
-    $s = $r->sendRequest();
-    print_r($s);
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
-
 
 

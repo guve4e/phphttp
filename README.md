@@ -1,5 +1,5 @@
 # PHP HTTP Client Library
-Small Library to help clients send HTTP Requests
+Small Library to help clients sending HTTP Requests
 and hide the implementation of libcurl.
 
 ###UML Class Diagram
