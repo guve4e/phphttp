@@ -6,11 +6,11 @@ try {
 	// create instance 
     $r = RestCall::create();
     // set URL
-    $r->setUrl("http://carstuff.ddns.net/web-api/index.php/Test");
+    $r->setUrl("http://housenet.ddns.net/web-api/index.php/Test");
     // set Content Type
     $r->setContentType("application/json");
     // set Method
-    $r->setMethod("PUT ");
+    $r->setMethod("POST ");
 
     // sample data 
     $json_data = [

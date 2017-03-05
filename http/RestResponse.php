@@ -5,36 +5,51 @@
  * @property
  * @version     1.0.0
  * @category    class
+ * @see http://php.net/manual/en/book.curl.php
  * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
  */
 class RestResponse
 {
     /**
+     * Is the REST call
+     * successful or not?
+     *
      * @var bool
      */
     private $success = true;
 
     /**
+     * The code that the server
+     * sent.
+     *
      * @var integer
      */
     private $http_code;
 
     /**
+     * What was the content type of the response
+     *
      * @var mixed
      */
     private $content_type;
 
     /**
+     * Type of Error
+     *
      * @var null
      */
     private $error = null;
 
     /**
+     * The actual data
+     *
      * @var mixed
      */
     private $body;
 
     /**
+     *
+     *
      * @var mixed
      */
     private $trace;
@@ -65,11 +80,17 @@ class RestResponse
     private $local_port;
 
     /**
+     * The IP address of the server
+     * the message is being sent to
+     *
      * @var
      */
     private $primary_ip;
 
     /**
+     * The Port of the server
+     * the message is being sent to
+     *
      * @var
      */
     private $primary_port;
@@ -82,10 +103,25 @@ class RestResponse
     private $prop = array();
 
     /**
-     * RestResponse constructor
+     * The total time for
+     * the request to reach
+     * the server
+     *
+     * @var
+     */
+    private $total_time;
+
+    /**
+     * RestResponse constructor.
+     *
+     * @param $info
+     * @param $method
+     * @param $curl
+     * @param $res
      * @throws Exception
      */
     public function __construct( $info, $method, $curl, $res ) {
+
         if ($info == null || $method == null || $curl == null || $res == null)
             throw new Exception("Null Info, can not construct RestResponse Object");
 
@@ -112,6 +148,8 @@ class RestResponse
         $this->prop['primary_ip'] = $this->primary_ip;
         $this->prop['method'] = $this->method;
         $this->prop['body'] = $res;
+
+      //  print_r($info);
     }
 
     /**
@@ -234,23 +272,35 @@ class RestResponse
     }
 
     /**
+     * toString magical method
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        $toString = "\n=========================================\n" .
+            "SUCCESS : " .  $this->success . "\n" .
+            "URL : " . $this->url . "\n" .
+            "Content Type : " . $this->content_type . "\n" .
+            "Method : " . $this->method . "\n" .
+            "Total Time : " . $this->total_time . "\n" .
+            "Local IP : " . $this->local_ip . "\n" .
+            "Local Port : " .  $this->local_port . "\n" .
+            "Primary IP : " . $this->primary_ip . "\n"  .
+            "Primary Port : " . $this->primary_ip . "\n" .
+            "------------------ BODY ------------------\n" .
+            $this->body .
+            "\n------------------- END ------------------\n\n";
+
+        return $toString;
+    }
+
+    /**
      * Print Information about the
      * Rest Call
      */
     public function printInfo() {
-        echo "=========================================\n";
-        echo "SUCCESS : " .  $this->success . "\n";
-        echo "URL : " . $this->url . "\n";
-        echo "Content Type : " . $this->content_type . "\n";
-        echo "Method : " . $this->method . "\n";
-        echo "Total Time : " . $this->total_time . "\n";
-        echo "Local IP : " . $this->local_ip . "\n";
-        echo "Local Port : " .  $this->local_port . "\n";
-        echo "Primary IP : " . $this->primary_ip . "\n";
-        echo "Primary Port : " . $this->primary_ip . "\n";
-        echo "------------------ BODY ------------------\n";
-        print_r($this->body);
-        echo "\n------------------- END ------------------\n";
+        var_dump($this /*, (string)$this*/);
     }
 
 

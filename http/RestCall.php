@@ -57,6 +57,8 @@ class RestCall
     }// end
 
     /**
+     * setMethod
+     *
      * @precondition Valid Method Name
      * @param mixed $method
      * @throws Exception
@@ -72,6 +74,8 @@ class RestCall
     }// end
 
     /**
+     * setContentType
+     *
      * @precondition Valid Content Type
      * @param mixed $content_type
      * @throws Exception
@@ -87,14 +91,18 @@ class RestCall
     }// end
 
     /**
+     * setHeaders
+     *
      * @param mixed $headers
      */
     public function setHeaders($headers)
     {
-        $this->make_headers($headers);
+        $this->makeHeaders($headers);
     }// end
 
     /**
+     * setUrl
+     *
      * @param mixed $url
      */
     public function setUrl($url)
@@ -103,6 +111,8 @@ class RestCall
     }// end
 
     /**
+     * setJsonData
+     *
      * @param mixed $json_data
      * @throws Exception
      */
@@ -116,16 +126,19 @@ class RestCall
 
 
     /**
-     * Send Request
+     * sendRequest
+     *
      */
     public function sendRequest() {
         return $this->http_send();
     }
 
     /**
+     * makeHeaders
+     *
      * Sets the Headers
      */
-    private function make_headers($headers) {
+    private function makeHeaders($headers) {
 
         foreach ($headers as $key => $value) {
             $this->headers[] = $key . ': ' . $value;
@@ -178,6 +191,11 @@ class RestCall
             curl_setopt($curl, CURLOPT_POSTFIELDS, $this->json_data);
         }
 
+        // set more options for curl info response
+        curl_setopt($curl, CURLINFO_PRIVATE, true); // show private data
+        curl_setopt($curl, CURLINFO_HEADER_OUT, true); // show request heder
+        curl_setopt($curl, CURLINFO_RTSP_SESSION_ID, true);// show the RTSP session ID
+        curl_setopt($curl, CURLINFO_COOKIELIST, true); // show all known cookies
 
         $res = null;
         try {
