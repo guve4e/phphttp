@@ -94,9 +94,12 @@ class RestCall
      * setHeaders
      *
      * @param mixed $headers
+     * @throws Exception if null parameter supplied
      */
     public function setHeaders($headers)
     {
+        // preconditions
+        if ($headers == null) throw new Exception("Null Headers");
         $this->makeHeaders($headers);
     }// end
 
@@ -104,9 +107,12 @@ class RestCall
      * setUrl
      *
      * @param mixed $url
+     * @throws Exception
      */
     public function setUrl($url)
     {
+        // preconditions
+        if ($url == null) throw new Exception("Null URL");
         $this->url = $url;
     }// end
 
@@ -203,7 +209,7 @@ class RestCall
             $info = curl_getinfo($curl);
 
             $log = new RestResponse($info,$this->method, $curl, $res);
-            $log->printInfo();
+           // $log->printInfo();
 
         } catch (Exception $e) {
 

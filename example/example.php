@@ -6,16 +6,16 @@ try {
 	// create instance 
     $r = RestCall::create();
     // set URL
-    $r->setUrl("http://housenet.ddns.net/web-api/index.php/Test");
+    $r->setUrl("http://crypto.com/crystalpure/web-api/index.php/braintree");
     // set Content Type
     $r->setContentType("application/json");
     // set Method
-    $r->setMethod("POST ");
+    $r->setMethod("POST");
 
     // sample data 
     $json_data = [
-        "name" => "John",
-        "occupation" => "Programmer"
+        "nonce" => "nonce",
+        "amount" => 123
     ];
 
     // set to JSON format
