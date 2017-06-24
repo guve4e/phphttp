@@ -163,7 +163,9 @@ class RestCall
         if ($this->method == null) throw new Exception("Null Method");
         if ($this->content_type == null) throw new Exception("Null Content Type");
         if ($this->url == null) throw new Exception("Null Url");
-
+        // check if php_curl is installed
+        if (!function_exists('curl_version')) throw new Exception("PHP Curl not installed");
+        
         // initialize
         $curl = curl_init($this->url);
 
