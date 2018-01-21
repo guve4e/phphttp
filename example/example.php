@@ -8,9 +8,10 @@ try {
 
 
     $restCall = new RestCall("Socket");
-    $restCall->setUrl("http://crystalpure.ddns.net/web-api/index.php/mockcontroller/1001")
+    $restCall->setUrl("http://localhost/web-api/index.php/mockcontroller/1001")
         ->setContentType("application/json")
-        ->setMethod("GET");
+        ->setMethod("GET")
+        ->isWaitingForResponse(false);
 
     $headers = [
         "ApiToken" => "some_token"

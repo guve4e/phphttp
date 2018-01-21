@@ -2,7 +2,6 @@
 
 class SocketCall extends HttpRequest
 {
-
     /**
      * @var int
      * Default port
@@ -26,9 +25,19 @@ class SocketCall extends HttpRequest
     private $path;
 
     /**
+     * @var bool
+     * If set to true, send() method
+     * will wait for server response.
+     * If not, it will send the request
+     * and continue without waiting for
+     * response.
+     */
+    private $isWaitingForResponse = true;
+
+    /**
      * @var null|RestResponse
      */
-    private $response = null;
+    private $restResponse = null;
 
     /**
      * Extracts http code from header.
@@ -61,11 +70,11 @@ class SocketCall extends HttpRequest
             throw new Exception("Wrong input");
 
         $parts = explode("\r\n", $response);
-        $this->response->setBody(end($parts))
+        $this->restResponse->setBody(end($parts))
             ->setHttpCode($this->retrieveCode($parts[0]))
             ->setTime($this->startTime, $this->endTime);
 
-        return $this->response;
+        return $this->restResponse;
     }
 
     /**
@@ -95,7 +104,7 @@ class SocketCall extends HttpRequest
      * SocketCall constructor.
      */
     function __construct() {
-        $this->response = new RestResponse();
+        $this->restResponse = new RestResponse();
     }
 
     /**
@@ -125,11 +134,19 @@ class SocketCall extends HttpRequest
     }
 
     /**
+     * @param bool $isWaitingForResponse
+     */
+    public function isWaitingForResponse(bool $isWaitingForResponse)
+    {
+        $this->isWaitingForResponse = $isWaitingForResponse;
+    }
+
+    /**
      * Sends a request to server.
      * @return RestResponse
      * @throws Exception
      */
-    public function send() : RestResponse
+    public function send()
     {
 
         $this->startTime = $this->takeTime();
@@ -142,20 +159,28 @@ class SocketCall extends HttpRequest
 
         fwrite($fp, $headerFields);
 
-        $contents = "";
+        if ($this->isWaitingForResponse)
+        {
+            $response = "";
 
-        // Wait for the response
-        // ans collect it.
-        while (!feof($fp)) {
-            $contents .= fgets($fp, 4096);
+            // Wait for the response
+            // ans collect it.
+            while (!feof($fp))
+                $response .= fgets($fp, 4096);
+
+
+            $this->endTime = $this->takeTime();
+
+            fclose($fp);
+
+            $res = $this->retrieveRestResponseInfo($response);
+
+            return $res;
+        }
+        else {
+            return;
         }
 
-        $this->endTime = $this->takeTime();
 
-        fclose($fp);
-
-        $res = $this->retrieveRestResponseInfo($contents);
-
-        return $res;
     }
 }

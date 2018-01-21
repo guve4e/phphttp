@@ -48,4 +48,9 @@ final class RestCall
     public function send() {
        return $this->strategy->send();
     }
+
+    public function isWaitingForResponse(bool $waiting)
+    {
+        return $this->strategy->isWaitingForResponse($waiting);
+    }
 }
