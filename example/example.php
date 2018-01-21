@@ -7,7 +7,7 @@ $request = null;
 try {
 
 
-    $restCall = new RestCall("Curl");
+    $restCall = new RestCall("Socket");
     $restCall->setUrl("http://crystalpure.ddns.net/web-api/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->setMethod("GET");
