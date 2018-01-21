@@ -3,9 +3,85 @@
 class SocketCall extends HttpRequest
 {
 
+    /**
+     * @var int
+     * Default port
+     */
     private $port = 80;
 
+    /**
+     * @var string
+     * Host extracted from url.
+     * Ex: http://house-net.ddns.net/secure/index.html
+     * host =  http://house-net.ddns.net
+     */
+    private $host;
+
+    /**
+     * @var string
+     * Path extracted from url.
+     * Ex: http://house-net.ddns.net/secure/index.html
+     * path = /secure/index.html
+     */
+    private $path;
+
+    /**
+     * @var null|RestResponse
+     */
     private $response = null;
+
+    /**
+     * Extracts http code from header.
+     * @param string $header the header line
+     * @return string http code
+     * @throws Exception
+     */
+    private function retrieveCode(string $header) : string
+    {
+        if (!isset($header))
+            throw new Exception("Wrong input in retrieve Code!");
+
+        $parts = explode(" ", $header);
+
+        if (count($parts) < 3)
+            throw new Exception("Wrong header field!");
+
+        return $parts[1];
+    }
+
+    /**
+     * Makes Rest Response Object
+     * @param $response string raw response form web-api
+     * @return RestResponse packed object
+     * @throws Exception
+     */
+    private function retrieveRestResponseInfo(string $response) : RestResponse
+    {
+        if (!isset($response))
+            throw new Exception("Wrong input");
+
+        $parts = explode("\r\n", $response);
+        $this->response->setBody(end($parts))
+            ->setHttpCode($this->retrieveCode($parts[0]))
+            ->setTime($this->startTime, $this->endTime);
+
+        return $this->response;
+    }
+
+    /**
+     * @return string
+     */
+    private function makeInitialHeaderFields() : string
+    {
+        $headerFields = "{$this->method} " . $this->path . " HTTP/1.1\r\n";
+        $headerFields .= "Host: ". $this->host . "\r\n";
+        $headerFields .= "Content-Type: {$this->contentType}\r\n";
+        $headerFields .= "Content-Length: " . strlen($this->jsonData)."\r\n";
+        $headerFields .= "Connection: Close\r\n\r\n";
+        $headerFields .= $this->jsonData;
+
+        return $headerFields;
+    }
 
     /**
      * @param int $port
@@ -22,7 +98,6 @@ class SocketCall extends HttpRequest
         $this->response = new RestResponse();
     }
 
-
     /**
      * Static constructor / factory
      */
@@ -32,32 +107,45 @@ class SocketCall extends HttpRequest
         return $instance;
     }
 
+    /**
+     * Sets URL.
+     * @override
+     * @param mixed $url
+     * @throws Exception
+     */
+    public function setUrl(string $url)
+    {
+        if (!isset($url))
+            throw new Exception("Bad input in setUrl!");
+
+        $this->url = $url;
+        $parts = parse_url($url);
+        $this->host = $parts['host'];
+        $this->path = $parts['path'];
+    }
+
+    /**
+     * Sends a request to server.
+     * @return RestResponse
+     * @throws Exception
+     */
     public function send() : RestResponse
     {
-        $data = $this->jsonData;
-
-        $parts = parse_url($this->url);
 
         $this->startTime = $this->takeTime();
 
-        $fp = fsockopen($parts['host'], $this->port, $errno, $errstr, 30);
+        $fp = fsockopen($this->host, $this->port, $errno, $errstr, 30);
 
         if (!$fp) throw new Exception("$errstr {$errno}\n");
 
+        $headerFields = $this->makeInitialHeaderFields();
 
-        $out = "{$this->method} " . $parts['path'] . " HTTP/1.1\r\n";
-        $out .= "Host: ". $parts['host'] . "\r\n";
-        $out .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $out .= "Content-Length: " . strlen($data)."\r\n";
-        $out .= "Connection: Close\r\n\r\n";
-        $out .= $data;
-
-        fwrite($fp, $out);
+        fwrite($fp, $headerFields);
 
         $contents = "";
 
-        //Waits for the web server to send the full response. On every line returned we append it onto the $contents
-        //variable which will store the whole returned request once completed.
+        // Wait for the response
+        // ans collect it.
         while (!feof($fp)) {
             $contents .= fgets($fp, 4096);
         }
@@ -69,30 +157,5 @@ class SocketCall extends HttpRequest
         $res = $this->retrieveRestResponseInfo($contents);
 
         return $res;
-    }
-
-    /**
-     * Makes Rest Response Object
-     * @param $response
-     * @return RestResponse
-     */
-    private function retrieveRestResponseInfo(string $response) : RestResponse
-    {
-        $parts = explode("\r\n", $response);
-        $this->response->setBody(end($parts))
-        ->setHttpCode($this->retrieveCode($parts[0]))
-        ->setTime($this->startTime, $this->endTime);
-
-        return $this->response;
-    }
-
-    /**
-     * @param string $header
-     * @return mixed
-     */
-    private function retrieveCode(string $header)
-    {
-        $parts = explode(" ",$header);
-        return $parts[1];
     }
 }

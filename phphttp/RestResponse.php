@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Simple Data Class.
+ * Simple Data Class
+ * to represent a Rest Response.
  */
 class RestResponse
 {
@@ -37,8 +38,13 @@ class RestResponse
     /**
      * @param mixed $http_code
      * @return RestResponse
+     * @throws Exception
      */
-    public function setHttpCode( $http_code ) {
+    public function setHttpCode(string $http_code) : RestResponse
+    {
+        if (!isset($http_code))
+            throw new Exception("Null Code!");
+
         $this->http_code = $http_code;
         return $this;
     }
@@ -47,36 +53,51 @@ class RestResponse
      * @param $startTime
      * @param $endTime
      * @return RestResponse
+     * @throws Exception
      */
-    public function setTime($startTime, $endTime ) {
+    public function setTime(float $startTime, float $endTime ) : RestResponse
+    {
+        if (!isset($startTime) || !isset($endTime))
+            throw new Exception("Null Time!");
+
         $this->timeSpent = $endTime - $startTime;
         return $this;
     }
 
     /**
      * @return RestResponse
+     * @throws Exception
      */
-    public function setBody(string $body) {
+    public function setBody(string $body) : RestResponse
+    {
+        if (!isset($body))
+            throw new Exception("Null Body!");
+
         $this->body = $body;
         return $this;
     }
 
     /**
-     * @return null
+     * @return bool
      */
-    public function isSuccessful() {
+    public function isSuccessful() : bool
+    {
         return $this->http_code < 300;
     }
 
     /**
-     * @return null
+     * @return string
+     * Raw string.
+     * Note, not json_encoded
      */
-    public function getBody() {
+    public function getBody() : string
+    {
         return $this->body;
     }
 
     /**
      * @return mixed
+     * Info about the call.
      */
     public function getInfo() : array
     {

@@ -27,7 +27,7 @@ abstract class HttpRequest implements HttpRequestInterface
      * @var
      * MIME type
      */
-    protected $contentType;
+    protected $contentType = "application/x-www-form-urlencoded";
 
     /**
      * @var
