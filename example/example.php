@@ -1,43 +1,30 @@
 <?php
 
-require_once("../http/RestCall.php");
+require_once("../phphttp/RestCall.php");
+
+$request = null;
 
 try {
-	// create instance 
-    $r = RestCall::create();
-    // set URL
-    $r->setUrl("http://crypto.com/crystalpure/web-api/index.php/braintree");
-    // set Content Type
-    $r->setContentType("application/json");
-    // set Method
-    $r->setMethod("POST");
 
-    // sample data 
-    $json_data = [
-        "nonce" => "nonce",
-        "amount" => 123
-    ];
 
-    // set to JSON format
-    $r->setJsonData($json_data);
+    $restCall = new RestCall("Curl");
+    $restCall->setUrl("http://crystalpure.ddns.net/web-api/index.php/mockcontroller/1001")
+        ->setContentType("application/json")
+        ->setMethod("GET");
 
-    // make headers
     $headers = [
-        "a" => "b",
-        "c" => "d"
+        "ApiToken" => "some_token"
     ];
 
-    // set headers
-    $r->setHeaders($headers);
+    $restCall->setHeaders($headers);
 
-    // send the request
-    $s = $r->sendRequest();
-    // print the result
-    print_r($s);
-    
-} 	catch (Exception $e) {
-    echo $e->getMessage();
+    // make the call
+    $request = $restCall->send();
+
+} catch (Exception $e) {
+   
+} finally {
+   var_dump($request);
 }
 
-?>
  

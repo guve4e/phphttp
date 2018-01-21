@@ -78,9 +78,12 @@ class RestResponse
     /**
      * @return mixed
      */
-    public function getTotalTime() : string
+    public function getInfo() : array
     {
-        $timeFormat = sprintf('%02d', $this->timeSpent);
-        return $timeFormat;
+        return [
+            "code" => $this->http_code,
+            "time" => $this->timeSpent,
+            "success" => $this->isSuccessful()
+        ];
     }
 }

@@ -15,4 +15,4 @@
     $r->setMethod("POST");
     $r->setJsonData(["a"=>'b']);
     $a = $r->send();
-    var_dump($a->get);
+    var_dump($a->getBody());

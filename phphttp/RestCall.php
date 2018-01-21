@@ -3,13 +3,6 @@
 require_once ("CurlCall.php");
 require_once ("SocketCall.php");
 
-/**
- * Created by PhpStorm.
- * User: home
- * Date: 1/20/18
- * Time: 11:23 AM
- */
-
 final class RestCall
 {
     private $strategy = NULL;
@@ -29,22 +22,27 @@ final class RestCall
 
     public function setUrl(string $url) {
          $this->strategy->setUrl($url);
+         return $this;
     }
 
     public function setMethod(string $method) {
         $this->strategy->setMethod($method);
+        return $this;
     }
 
     public function setContentType(string $contentType) {
         $this->strategy->setContentType($contentType);
+        return $this;
     }
 
     public function setHeaders(array $headers) {
         $this->strategy->setHeaders($headers);
+        return $this;
     }
 
     public function setJsonData(array $jsonData) {
         $this->strategy->setJsonData($jsonData);
+        return $this;
     }
 
     public function send() {

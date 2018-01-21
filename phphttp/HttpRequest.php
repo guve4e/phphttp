@@ -1,7 +1,7 @@
 <?php
 require_once("HttpRequestInterface.php");
 /**
- * RestCall class
+ * HttpRequest class
  *
  * @version     2.0.0
  * @category    class

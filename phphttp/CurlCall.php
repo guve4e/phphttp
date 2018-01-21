@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: home
- * Date: 1/20/18
- * Time: 11:05 AM
- */
 
 require_once ("HttpRequest.php");
 require_once ("RestResponse.php");
@@ -104,6 +98,12 @@ class CurlCall extends HttpRequest
         }
     }
 
+    /**
+     * Makes Rest Response Object
+     * @param $response
+     * @param $info
+     * @return RestResponse
+     */
     private function retrieveRestResponseInfo($response, $info) : RestResponse
     {
         $res = new RestResponse();
