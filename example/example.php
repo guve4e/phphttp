@@ -7,25 +7,35 @@ $request = null;
 try {
 
 
-    $restCall = new RestCall("Socket");
+
+    $restCall = new RestCall("Curl");
     $restCall->setUrl("http://localhost/web-api/index.php/mockcontroller/1001")
         ->setContentType("application/json")
-        ->setMethod("GET")
-        ->isWaitingForResponse(false);
+        ->addBody(["aaa" => "dsdd"])
+        ->setMethod("POST");
 
     $headers = [
         "ApiToken" => "some_token"
     ];
 
     $restCall->setHeaders($headers);
+    $restCall->addHeader("SomeHeader", "SomeValue");
 
     // make the call
-    $request = $restCall->send();
+    $restCall->send();
+
+
+    $str = $restCall->getResponseAsString();
+    $json = $restCall->getResponseAsJson();
+    
+    var_dump($str);
+    var_dump($json);
+
 
 } catch (Exception $e) {
    
 } finally {
-   var_dump($request);
+ //  var_dump($str);
 }
 
  

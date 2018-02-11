@@ -1,6 +1,15 @@
 <?php
 
-class SocketCall extends HttpRequest
+/**
+ * Simple Data Class
+ * to represent a Rest Response.
+ * @version     2.1.0
+ * @category    class
+ * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
+ */
+
+
+class SocketCall extends AHttpRequest
 {
     /**
      * @var int
@@ -35,9 +44,10 @@ class SocketCall extends HttpRequest
     private $isWaitingForResponse = true;
 
     /**
-     * @var null|RestResponse
+     * Socket Timeout
+     * @var int
      */
-    private $restResponse = null;
+    private $socketTimeout = 30;
 
     /**
      * Extracts http code from header.
@@ -61,23 +71,24 @@ class SocketCall extends HttpRequest
     /**
      * Makes Rest Response Object
      * @param $response string raw response form web-api
-     * @return RestResponse packed object
      * @throws Exception
      */
-    private function retrieveRestResponseInfo(string $response) : RestResponse
+    private function retrieveRestResponseInfo(string $response)
     {
         if (!isset($response))
             throw new Exception("Wrong input");
 
         $parts = explode("\r\n", $response);
-        $this->restResponse->setBody(end($parts))
+
+        $this->responseBody = end($parts);
+
+        $this->restResponse->setBody($this->responseBody)
             ->setHttpCode($this->retrieveCode($parts[0]))
             ->setTime($this->startTime, $this->endTime);
-
-        return $this->restResponse;
     }
 
     /**
+     * Constructs header fields.
      * @return string
      */
     private function makeInitialHeaderFields() : string
@@ -85,26 +96,27 @@ class SocketCall extends HttpRequest
         $headerFields = "{$this->method} " . $this->path . " HTTP/1.1\r\n";
         $headerFields .= "Host: ". $this->host . "\r\n";
         $headerFields .= "Content-Type: {$this->contentType}\r\n";
-        $headerFields .= "Content-Length: " . strlen($this->jsonData)."\r\n";
+        $headerFields .= "Content-Length: " . strlen($this->body)."\r\n";
         $headerFields .= "Connection: Close\r\n\r\n";
-        $headerFields .= $this->jsonData;
+        $headerFields .= $this->body;
 
         return $headerFields;
     }
 
     /**
+     * SocketCall constructor.
+     */
+    public function __construct() {
+        $this->restResponse = new RestResponse();
+    }
+
+    /**
+     * Sets valid port.
      * @param int $port
      */
     public function setPort(int $port): void
     {
         $this->port = $port;
-    }
-
-    /**
-     * SocketCall constructor.
-     */
-    function __construct() {
-        $this->restResponse = new RestResponse();
     }
 
     /**
@@ -134,6 +146,10 @@ class SocketCall extends HttpRequest
     }
 
     /**
+     * Flag, to tell the class if it needs
+     * to wait for response form the server,
+     * or continue execution without waiting
+     * for response.
      * @param bool $isWaitingForResponse
      */
     public function isWaitingForResponse(bool $isWaitingForResponse)
@@ -143,15 +159,13 @@ class SocketCall extends HttpRequest
 
     /**
      * Sends a request to server.
-     * @return RestResponse
      * @throws Exception
      */
     public function send()
     {
-
         $this->startTime = $this->takeTime();
 
-        $fp = fsockopen($this->host, $this->port, $errno, $errstr, 30);
+        $fp = fsockopen($this->host, $this->port, $errno, $errstr, $this->socketTimeout);
 
         if (!$fp) throw new Exception("$errstr {$errno}\n");
 
@@ -168,19 +182,56 @@ class SocketCall extends HttpRequest
             while (!feof($fp))
                 $response .= fgets($fp, 4096);
 
-
             $this->endTime = $this->takeTime();
 
             fclose($fp);
 
-            $res = $this->retrieveRestResponseInfo($response);
-
-            return $res;
+            $this->responseRaw = $response;
+            $this->retrieveRestResponseInfo($response);
         }
-        else {
-            return;
-        }
+    }
 
+    /**
+     * Represents the whole response.
+     * That includes the request line
+     * and the header lines.
+     * @return string representing
+     * the whole response.
+     */
+    public function getResponseRaw() : string
+    {
+        return $this->responseRaw;
+    }
 
+    /**
+     * Gives back the response
+     * form the server as JSON object.
+     * @return \PHPUnit\Util\Json
+     */
+    public function getResponseAsJson()
+    {
+        return json_encode($this->responseRaw);
+    }
+
+    /**
+     * Gives back the response
+     * form the server as a packed
+     * Rest Response object, that holds
+     * some information about the request.
+     * @return RestResponse object
+     */
+    public function getResponseWithInfo() : RestResponse
+    {
+       return $this->restResponse;
+    }
+
+    /**
+     * Gives back the response
+     * form the server as string.
+     * @return string
+     */
+    public function getResponseAsString()
+    {
+        return $this->responseBody;
     }
 }

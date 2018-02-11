@@ -1,14 +1,14 @@
 <?php
-require_once("HttpRequestInterface.php");
+require_once("IHttpRequest.php");
 /**
  * HttpRequest class
  *
- * @version     2.0.0
+ * @version     2.1.0
  * @category    class
  * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
  */
 
-abstract class HttpRequest implements HttpRequestInterface
+abstract class AHttpRequest implements IHttpRequest
 {
     /**
      * @var string
@@ -26,12 +26,13 @@ abstract class HttpRequest implements HttpRequestInterface
     /**
      * @var
      * MIME type
+     * Header field content-type
      */
     protected $contentType = "application/x-www-form-urlencoded";
 
     /**
      * @var
-     * Request fields
+     * Header fields
      */
     protected $headers;
 
@@ -39,10 +40,11 @@ abstract class HttpRequest implements HttpRequestInterface
      * @var mixed
      * Data to be sent
      */
-    protected $jsonData;
+    protected $body;
     
     /**
-     * @var
+     * @var boolean
+     * Debugging flag.
      */
     protected $debug = true;
 
@@ -59,6 +61,27 @@ abstract class HttpRequest implements HttpRequestInterface
      * Time taken after the call.
      */
     protected $endTime;
+
+    /**
+     * @var string
+     * Represents the whole response.
+     * That includes the request line
+     * and the header lines.
+     */
+    protected $responseRaw;
+
+    /**
+     * @var string
+     * Represents the body of the response.
+     */
+    protected $responseBody;
+
+    /**
+     * @var null|RestResponse object.
+     * This object contains little
+     * info about the request.
+     */
+    protected $restResponse = null;
 
     /**
      * Take time in microsecond
@@ -112,6 +135,18 @@ abstract class HttpRequest implements HttpRequestInterface
     }
 
     /**
+     * Adds key, value pair as a
+     * header field.
+     * @param string $fieldName
+     * @param string $fieldValue
+     * @return mixed
+     */
+    public function addHeader(string $fieldName, string $fieldValue)
+    {
+        $this->headers[] = $fieldName . ': ' . $fieldValue;
+    }
+
+    /**
      * Sets URL.
      * @param mixed $url
      */
@@ -125,12 +160,12 @@ abstract class HttpRequest implements HttpRequestInterface
      * @param mixed $jsonData
      * @throws Exception
      */
-    public function setJsonData($jsonData)
+    public function addBody(array $jsonData)
     {
         // preconditions
         if ($jsonData == null) throw new Exception("Null Json Data");
         
-          $this->jsonData = json_encode($jsonData);
+          $this->body = json_encode($jsonData);
     }
 
     /**

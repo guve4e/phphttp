@@ -1,11 +1,19 @@
 <?php
 
-require_once ("HttpRequest.php");
+require_once("AHttpRequest.php");
 require_once ("RestResponse.php");
 
-class CurlCall extends HttpRequest
-{
+/**
+ * CurlCall is more user friendly wrapper over
+ * crul.
+ *
+ * @version     2.1.0
+ * @category    class
+ * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
+ */
 
+class CurlCall extends AHttpRequest
+{
     /**
      * RestCall constructor.
      */
@@ -30,7 +38,7 @@ class CurlCall extends HttpRequest
      * @return string json string / Curl Response
      * @throws Exception
      */
-    public function send() : RestResponse
+    public function send()
     {
         // preconditions
         if ($this->method == null) throw new Exception("Null Method");
@@ -54,47 +62,26 @@ class CurlCall extends HttpRequest
         // set headers
         curl_setopt($curl, CURLOPT_HTTPHEADER, $this->headers);
 
+        if ($this->body)
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->body);
 
-        // The full data to post in a HTTP "POST" operation. To post a file,
-        // prepend a filename with @ and use the full path. The file-type can be
-        // explicitly specified by following the filename with the type in the
-        // format ';type=mimetype'. This parameter can either be passed as a
-        // urlencoded string like 'para1=val1&para2=val2&...' or as an array with
-        // the field name as key and field data as value. If value is an array, the
-        // Content-Type header will be set to multipart/form-data. As of PHP 5.2.0,
-        // value must be an array if files are passed to this option with the @ prefix.
-        // As of PHP 5.5.0, the @ prefix is deprecated and files can be sent using CURLFile.
-        // The @ prefix can be disabled for safe passing of values beginning with @ by
-        // setting the CURLOPT_SAFE_UPLOAD option to TRUE.
-        if ($this->jsonData)
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->jsonData);
-
-        $restResponse = null;
         try {
             $this->startTime = $this->takeTime();
             $response = curl_exec($curl);
             $this->endTime = $this->takeTime();
 
             $info = curl_getinfo($curl);
-
-            // TODO log info here
             $resError =  json_last_error();
 
             if($resError != 0)
                 throw new Exception("Exception in curl!");
 
-            $restResponse = $this->retrieveRestResponseInfo($response, $info);
+            $this->retrieveRestResponseInfo($response, $info);
 
         } catch (Exception $e) {
-
-            $a = $e;
-
-           // Logger::logMsg("JSON_API_EXCEPTION {$resError}", $e->getMessage());
+            $e->getTrace();
         } finally {
             curl_close($curl);
-
-            // curl_exec has success property
-            return $restResponse;
         }
     }
 
@@ -102,14 +89,48 @@ class CurlCall extends HttpRequest
      * Makes Rest Response Object
      * @param $response
      * @param $info
-     * @return RestResponse
+     * @throws Exception
      */
-    private function retrieveRestResponseInfo($response, $info) : RestResponse
+    private function retrieveRestResponseInfo($response, $info)
     {
+        $this->responseBody = $response;
+
         $res = new RestResponse();
         $res->setHttpCode($info['http_code'])
             ->setTime($this->startTime, $this->endTime)
             ->setBody($response);
-        return $res;
+
+        $this->restResponse = $res;
+    }
+
+    /**
+     * Returns the body of the
+     * response as JSON object.
+     * @return \PHPUnit\Util\Json
+     */
+    public function getResponseAsJson()
+    {
+        return json_decode($this->responseBody);
+    }
+
+    /**
+     * Returns the body of the response
+     * wrapped with RestResponse class,
+     * providing info about the request.
+     * @return RestResponse
+     */
+    public function getResponseWithInfo()
+    {
+        return $this->restResponse;
+    }
+
+    /**
+     * Returns the body of the
+     * response as string.
+     * @return string
+     */
+    public function getResponseAsString()
+    {
+        return $this->responseBody;
     }
 }

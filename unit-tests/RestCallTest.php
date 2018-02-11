@@ -1,10 +1,10 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-require_once("../http/RestCall.php");
+require_once("../phphttp/RestCall.php");
 require_once ("UtilityTest.php");
 
-class RestCallTest extends TestCase
+class RestCallCurlTest extends TestCase
 {
     use UtilityTest;
 
@@ -19,8 +19,10 @@ class RestCallTest extends TestCase
     protected function setUp()
     {
         // create instance
-        $this->rest = RestCall::create();
+        $this->rest = new RestCall("Curl");
     }
+
+
 
     /**
      *

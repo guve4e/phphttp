@@ -3,7 +3,11 @@
 /**
  * Simple Data Class
  * to represent a Rest Response.
+ * @version     2.1.0
+ * @category    class
+ * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
  */
+
 class RestResponse
 {
     /**
@@ -36,6 +40,8 @@ class RestResponse
     }
 
     /**
+     * Sets up the http code returned
+     * from the server.
      * @param mixed $http_code
      * @return RestResponse
      * @throws Exception
@@ -50,6 +56,8 @@ class RestResponse
     }
 
     /**
+     * Calculates the time needed
+     * for the request.
      * @param $startTime
      * @param $endTime
      * @return RestResponse
@@ -65,6 +73,10 @@ class RestResponse
     }
 
     /**
+     * Packs into the object a
+     * body filed, containing the
+     * body of the request.
+     * @param string $body
      * @return RestResponse
      * @throws Exception
      */
@@ -78,6 +90,8 @@ class RestResponse
     }
 
     /**
+     * Calculates the success of
+     * the request.
      * @return bool
      */
     public function isSuccessful() : bool
@@ -86,6 +100,7 @@ class RestResponse
     }
 
     /**
+     * Gives the body as a string.
      * @return string
      * Raw string.
      * Note, not json_encoded
@@ -96,6 +111,8 @@ class RestResponse
     }
 
     /**
+     * Retrieves information
+     * about the request.
      * @return mixed
      * Info about the call.
      */
