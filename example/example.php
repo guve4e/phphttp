@@ -1,13 +1,14 @@
 <?php
 
 require_once("../phphttp/RestCall.php");
+require_once("../phphttp/File.php");
 
 $request = null;
 
 try {
 
     // api wit curl
-    $restCall = new RestCall("Curl");
+    $restCall = new RestCall("Curl", new File());
     $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->addBody(["aaa" => "dsdd"])
@@ -32,7 +33,7 @@ try {
     
     // api with socket
      // api
-    $restCall = new RestCall("Socket");
+    $restCall = new RestCall("Socket", new File());
     $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->addBody(["aaa" => "dsdd"])
