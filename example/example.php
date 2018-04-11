@@ -56,7 +56,7 @@ try {
     
     var_dump($str);
     var_dump($json);
-    
+    var_dump($raw);
 
 } catch (Exception $e) {
    
