@@ -6,32 +6,17 @@ require_once("RestResponse.php");
 /**
  * CurlCall is more user friendly wrapper over
  * curl.
- *
- * @version     2.1.0
- * @category    class
- * @license     GNU Public License <http://www.gnu.org/licenses/gpl-3.0.txt>
  */
-
 class CurlCall extends AHttpRequest
 {
     /**
      * RestCall constructor.
      * @throws Exception
      */
-    function __construct(File $file) {
+    function __construct() {
         // check if php_curl is installed
         if (!function_exists('curl_version'))
             throw new Exception("PHP Curl not installed");
-    }
-
-    /**
-     * Static constructor / factory
-     * @throws Exception
-     */
-    public static function create(File $file = null) : CurlCall
-    {
-        $instance = new self($file);
-        return $instance;
     }
 
     /**
@@ -134,5 +119,15 @@ class CurlCall extends AHttpRequest
     public function getResponseAsString()
     {
         return $this->responseBody;
+    }
+
+    /**
+     * Gives back the response
+     * form the server as an array.
+     * @return string
+     */
+    public function getResponseAsArray()
+    {
+        // TODO: Implement getResponseAsArray() method.
     }
 }

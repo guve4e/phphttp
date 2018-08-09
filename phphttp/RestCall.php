@@ -1,15 +1,15 @@
 <?php
 
-require_once ("CurlCall.php");
-require_once ("SocketCall.php");
-require_once ("File.php");
+require_once("CurlCall.php");
+require_once("HttpSocketCall.php");
+require_once("File.php");
 
 class RestCall
 {
     /**
-     * @var null|SocketCall
+     * @var null|HttpSocketCall
      */
-    private $strategy = NULL;
+    private $strategy = null;
 
     /**
      * RestCall constructor.
@@ -21,10 +21,10 @@ class RestCall
         switch ($restCallType)
         {
             case "Curl":
-                $this->strategy = new CurlCall($file);
+                $this->strategy = new CurlCall();
                 break;
-            case "Socket":
-                $this->strategy = new SocketCall($file);
+            case "HttpSocket":
+                $this->strategy = new HttpSocketCall($file);
                 break;
         }
     }
@@ -35,8 +35,8 @@ class RestCall
      * @throws Exception
      */
     public function setUrl(string $url) {
-        $this->strategy->setUrl($url);
-        return $this;
+         $this->strategy->setUrl($url);
+         return $this;
     }
 
     /**
@@ -93,7 +93,7 @@ class RestCall
      * @throws Exception
      */
     public function send() {
-        $this->strategy->send();
+       $this->strategy->send();
     }
 
     /**
@@ -119,6 +119,7 @@ class RestCall
 
     /**
      * @return mixed
+     * @throws Exception
      */
     public function getResponseAsJson() {
         return $this->strategy->getResponseAsJson();

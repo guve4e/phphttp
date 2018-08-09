@@ -17,6 +17,7 @@ class RestCallCurlTest extends TestCase
      */
     protected function setUp()
     {
+        $body = json_encode([ 'key' => 'value', 'title' => 'some_title' ]);
         $httpResponse = "HTTP/1.1 200 OK" . "\r\n" .
             "Date: Mon, 27 Jul 2009 12:28:53 GMT" . "\r\n" .
             "Server: Apache/2.2.14 (Win32)" . "\r\n" .
@@ -24,7 +25,8 @@ class RestCallCurlTest extends TestCase
             "Content-Length: 88" . "\r\n" .
             "Content-Type: text/html" . "\r\n" .
             "Connection: Closed" . "\r\n\r\n" .
-            "{ 'key' => 'value', 'title' => 'some_title' }";
+            $body;
+
 
         // Create a stub for the JsonLoader class
         $this->mockConnection = $this->getMockBuilder(File::class)
@@ -48,26 +50,27 @@ class RestCallCurlTest extends TestCase
             ->willReturn(true);
     }
 
-    public function testSocketCall()
+    /**
+     * @throws Exception
+     */
+    public function testHttpSocketCall()
     {
         // Arrange
-        $expectedString = json_encode("{ 'key' => 'value', 'title' => 'some_title' }");
+        $expectedString = json_encode([ 'key' => 'value', 'title' => 'some_title' ]);
 
-        try {
-            $restCall = new RestCall("Socket", $this->mockConnection);
-            $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001");
-            $restCall->setContentType("application/json");
-            $restCall->setMethod("POST");
-            $restCall->addBody(["a" => 'b']);
-            $restCall->send();
-            $responseAsJson = $restCall->getResponseAsJson();
-            $responseAsString = $restCall->getResponseAsString();
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
 
-        $this->assertEquals($expectedString, $responseAsJson);
-        $this->assertEquals("{ 'key' => 'value', 'title' => 'some_title' }", $responseAsString);
+        $restCall = new RestCall("HttpSocket", $this->mockConnection);
+        $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001");
+        $restCall->setContentType("application/json");
+        $restCall->setMethod("POST");
+        $restCall->addBody(["a" => 'b']);
+        $restCall->send();
+        $responseAsJson = $restCall->getResponseAsJson();
+        $responseAsString = $restCall->getResponseAsString();
+
+
+        $this->assertEquals($expectedString, $responseAsString);
+        $this->assertEquals([ 'key' => 'value', 'title' => 'some_title' ], $responseAsJson);
     }
 }
 
