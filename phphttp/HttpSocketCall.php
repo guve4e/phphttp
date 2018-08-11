@@ -184,6 +184,16 @@ class HttpSocketCall extends AHttpRequest
 
     /**
      * Gives back the response
+     * form the server as an array.
+     * @return string
+     */
+    public function getResponseAsArray()
+    {
+        // TODO: Implement getResponseAsArray() method.
+    }
+
+    /**
+     * Gives back the response
      * form the server as a packed
      * Rest Response object, that holds
      * some information about the request.
@@ -202,15 +212,5 @@ class HttpSocketCall extends AHttpRequest
     public function getResponseAsString()
     {
         return $this->responseBody;
-    }
-
-    /**
-     * Gives back the response
-     * form the server as an array.
-     * @return string
-     */
-    public function getResponseAsArray()
-    {
-        // TODO: Implement getResponseAsArray() method.
     }
 }

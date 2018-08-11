@@ -1,6 +1,6 @@
 <?php
 
-require_once("CurlCall.php");
+require_once("HttpCurlCall.php");
 require_once("HttpSocketCall.php");
 require_once("File.php");
 
@@ -21,7 +21,7 @@ class RestCall
         switch ($restCallType)
         {
             case "Curl":
-                $this->strategy = new CurlCall();
+                $this->strategy = new HttpCurlCall();
                 break;
             case "HttpSocket":
                 $this->strategy = new HttpSocketCall($file);

@@ -4,10 +4,10 @@ require_once("AHttpRequest.php");
 require_once("RestResponse.php");
 
 /**
- * CurlCall is more user friendly wrapper over
+ * HttpCurlCall is more user friendly wrapper over
  * curl.
  */
-class CurlCall extends AHttpRequest
+class HttpCurlCall extends AHttpRequest
 {
     /**
      * RestCall constructor.
@@ -101,6 +101,16 @@ class CurlCall extends AHttpRequest
     }
 
     /**
+     * Gives back the response
+     * form the server as an array.
+     * @return string
+     */
+    public function getResponseAsArray()
+    {
+        // TODO: Implement getResponseAsArray() method.
+    }
+
+    /**
      * Returns the body of the response
      * wrapped with RestResponse class,
      * providing info about the request.
@@ -119,15 +129,5 @@ class CurlCall extends AHttpRequest
     public function getResponseAsString()
     {
         return $this->responseBody;
-    }
-
-    /**
-     * Gives back the response
-     * form the server as an array.
-     * @return string
-     */
-    public function getResponseAsArray()
-    {
-        // TODO: Implement getResponseAsArray() method.
     }
 }

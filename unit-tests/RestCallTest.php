@@ -4,12 +4,9 @@ use PHPUnit\Framework\TestCase;
 
 require_once ("../phphttp/RestCall.php");
 require_once ("../phphttp/File.php");
-require_once ("UtilityTest.php");
 
 class RestCallCurlTest extends TestCase
 {
-    use UtilityTest;
-
     private $mockConnection;
 
     /**
@@ -58,7 +55,7 @@ class RestCallCurlTest extends TestCase
         // Arrange
         $expectedString = json_encode([ 'key' => 'value', 'title' => 'some_title' ]);
 
-
+        // Act
         $restCall = new RestCall("HttpSocket", $this->mockConnection);
         $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001");
         $restCall->setContentType("application/json");
@@ -68,7 +65,7 @@ class RestCallCurlTest extends TestCase
         $responseAsJson = $restCall->getResponseAsJson();
         $responseAsString = $restCall->getResponseAsString();
 
-
+        // Assert
         $this->assertEquals($expectedString, $responseAsString);
         $this->assertEquals([ 'key' => 'value', 'title' => 'some_title' ], $responseAsJson);
     }

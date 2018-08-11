@@ -34,7 +34,7 @@ try {
     // api with socket
      // api
     $restCall = new RestCall("Socket", new File());
-    $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001")
+    $restCall->setUrl("localhost/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->addBody(["aaa" => "dsdd"])
         ->setMethod("POST");
