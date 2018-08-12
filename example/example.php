@@ -1,15 +1,15 @@
 <?php
 
 require_once("../phphttp/RestCall.php");
-require_once("../phphttp/File.php");
+require_once("../phphttp/FileManager.php");
 
 $request = null;
 
 try {
 
     // api wit curl
-    $restCall = new RestCall("Curl", new File());
-    $restCall->setUrl("http://webapi.ddns.net/index.php/mockcontroller/1001")
+    $restCall = new RestCall("Curl", new FileManager());
+    $restCall->setUrl("localhost/web-api/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->addBody(["aaa" => "dsdd"])
         ->setMethod("POST");
@@ -33,8 +33,8 @@ try {
     
     // api with socket
      // api
-    $restCall = new RestCall("Socket", new File());
-    $restCall->setUrl("localhost/index.php/mockcontroller/1001")
+    $restCall = new RestCall("HttpSocket", new FileManager());
+    $restCall->setUrl("http://localhost/web-api/index.php/mockcontroller/1001")
         ->setContentType("application/json")
         ->addBody(["aaa" => "dsdd"])
         ->setMethod("POST");
@@ -59,7 +59,7 @@ try {
     var_dump($raw);
 
 } catch (Exception $e) {
-   
+   print "Exception :" . $e;
 } finally {
 
 }

@@ -21,7 +21,7 @@ class HttpSocketCall extends AHttpRequest
     private $path;
 
     /**
-     * @var File
+     * @var FileManager
      * Provides file system
      * functionality
      */
@@ -130,6 +130,10 @@ class HttpSocketCall extends AHttpRequest
 
         $this->url = $url;
         $parts = parse_url($url);
+
+        if (count($parts) < 2)
+            throw new Exception("Bad URL!");
+
         $this->host = $parts['host'];
         $this->path = $parts['path'];
     }

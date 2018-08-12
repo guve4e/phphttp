@@ -61,10 +61,10 @@ class SocketCall
 
     /**
      * HttpSocketCall constructor.
-     * @param File $file
+     * @param FileManager $file
      * @throws Exception
      */
-    public function __construct(File $file) {
+    public function __construct(FileManager $file) {
 
         if (!isset($file))
             throw new Exception("Bad parameter in HttpSocketCall constructor!");

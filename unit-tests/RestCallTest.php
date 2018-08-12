@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 
 require_once ("../phphttp/RestCall.php");
-require_once ("../phphttp/File.php");
+require_once("../phphttp/FileManager.php");
 
 class RestCallCurlTest extends TestCase
 {
@@ -24,9 +24,8 @@ class RestCallCurlTest extends TestCase
             "Connection: Closed" . "\r\n\r\n" .
             $body;
 
-
         // Create a stub for the JsonLoader class
-        $this->mockConnection = $this->getMockBuilder(File::class)
+        $this->mockConnection = $this->getMockBuilder(FileManager::class)
             ->setMethods(array('fileExists', 'close', 'getLine', 'endOfFile', 'socket', 'write'))
             ->getMock();
 

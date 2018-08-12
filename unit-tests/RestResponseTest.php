@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 
 require_once ("../phphttp/RestCall.php");
-require_once ("../phphttp/File.php");
+require_once("../phphttp/FileManager.php");
 require_once ("UtilityTest.php");
 
 class RestResponseTest extends TestCase

@@ -2,7 +2,7 @@
 
 require_once("HttpCurlCall.php");
 require_once("HttpSocketCall.php");
-require_once("File.php");
+require_once("FileManager.php");
 
 class RestCall
 {
@@ -16,7 +16,7 @@ class RestCall
      * @param string $restCallType
      * @throws Exception
      */
-    public function __construct(string $restCallType, File $file)
+    public function __construct(string $restCallType, FileManager $file)
     {
         switch ($restCallType)
         {
